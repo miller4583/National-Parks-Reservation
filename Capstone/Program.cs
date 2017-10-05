@@ -11,7 +11,8 @@ namespace Capstone
     {
         static void Main(string[] args)
         {
-            
+            ParkCLI park = new ParkCLI();
+            park.run();
         }
     }
 }
