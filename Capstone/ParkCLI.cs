@@ -95,7 +95,7 @@ namespace Capstone
 
                 Console.WriteLine();
                 Tools.ColorfulWriteLine("Campground ID".PadRight(20) + "Name".PadRight(35) + "Opens".PadRight(10) + "Closes".PadRight(15) + "Daily Fee", ConsoleColor.Green);
-                Console.WriteLine($"{c.campground_id})".PadRight(20) + $"{c.name}".PadRight(35) + $"{strMonthName}".PadRight(10) + $"{endMonthName}".PadRight(15) + $"{c.daily_fee}");
+                Console.WriteLine($"{c.campground_id})".PadRight(20) + $"{c.name}".PadRight(35) + $"{strMonthName}".PadRight(10) + $"{endMonthName}".PadRight(15) + $"${c.daily_fee}");
                 Console.WriteLine();
             }
 
@@ -106,9 +106,9 @@ namespace Capstone
 
             int campground_id = CLIHelper.GetInteger("Please Select Campground ID");
             Console.WriteLine();
-            DateTime startDate = CLIHelper.GetDateTime("Please Select Start of Stay (yyyy/mm/dd)");
+            DateTime startDate = CLIHelper.GetDateTime("Please Select Start of Stay (yyyy-mm-dd)");
             Console.WriteLine();
-            DateTime endDate = CLIHelper.GetDateTime("Please Select Date of Depature (yyyy/mm/dd)");
+            DateTime endDate = CLIHelper.GetDateTime("Please Select Date of Depature (yyyy-mm-dd)");
 
             SiteDal dal = new SiteDal(connectionString);
             List<Site> sites;
@@ -131,8 +131,22 @@ namespace Capstone
         
         private void MakeReservation()
         {
-            throw new NotImplementedException();
+            int siteID = CLIHelper.GetInteger("Please Select your Camp Site:");
+            string name = CLIHelper.GetString("Please enter reservation Name");
+            DateTime fromDate = CLIHelper.GetDateTime("Please select arrival date");
+            DateTime toDate = CLIHelper.GetDateTime("Please select depature date");
+            DateTime createDate = DateTime.Now;
+            Console.WriteLine();
+            ReservationDAL dal = new ReservationDAL(connectionString);
+            
+
+            dal.MakeReservation(siteID, name, fromDate, toDate,createDate);
+            Reservation r = dal.GetReservationNumber(siteID, name, fromDate, toDate);
+            Console.WriteLine("Success, your reservation confirmation is below!");
+            Tools.ColorfulWriteLine("Confirmation ID".PadRight(20) + "Name".PadRight(35) + "Arrival Date".PadRight(10) + "Depature Date".PadRight(15) + "Creation Date", ConsoleColor.Green);
+            Console.WriteLine($"{r.reservationId})".PadRight(20) + $"{r.name}".PadRight(35) + $"{r.fromDate}".PadRight(10) + $"{r.toDate}".PadRight(15) + $"{r.createDate}");
+            
         }
-             
+
     }
 }

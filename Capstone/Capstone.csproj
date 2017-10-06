@@ -47,6 +47,7 @@
     <Compile Include="CLIHelper.cs" />
     <Compile Include="DAL\CampgroundDAL.cs" />
     <Compile Include="DAL\ParkDAL.cs" />
+    <Compile Include="DAL\ReservationDAL.cs" />
     <Compile Include="DAL\SiteDal.cs" />
     <Compile Include="Models\Campground.cs" />
     <Compile Include="Models\Parks.cs" />

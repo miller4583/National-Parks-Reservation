@@ -13,7 +13,8 @@ namespace Capstone.DAL
     {
         private string connectionString;
         private string SQL_Is_Date_Avail = @"select * from site join reservation on reservation.site_id = site.site_id where reservation.from_date =  @startDate and reservation.to_date = @endDate and site.campground_id = @campground_id;";
-        private string SQL_List_Top_5 = @"select top 5 site.max_occupancy, site.site_id, site.site_number, campground.daily_fee from site join campground on site.campground_id = campground.campground_id where site.campground_id = @campground_id order by site.site_id;";
+        private string SQL_List_Top_5 = @"select top 5 site.max_occupancy, site.site_id, site.site_number, campground.daily_fee from site join campground on site.campground_id = campground.campground_id where site.campground_id  = @campground_id and site.site_id not in(select distinct reservation.site_id from reservation join site on site.site_id = reservation.site_id where site.campground_id = @campground_id and from_date >= @startDate or to_date <= @endDate or (from_date >= @startDate and to_date <= @endDate));";
+
         public SiteDal(string connectionString)
         {
             this.connectionString = connectionString;
@@ -33,7 +34,7 @@ namespace Capstone.DAL
 
                     int rowsAffected = cmd.ExecuteNonQuery();
 
-                    return (rowsAffected < 6);
+                    return (rowsAffected < 7);
 
                 }
 
