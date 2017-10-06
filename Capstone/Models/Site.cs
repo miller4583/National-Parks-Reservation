@@ -16,5 +16,8 @@ namespace Capstone.Models
         public DateTime endDate { get; set; }
         public int totalDays { get; set; }
         public decimal totalCost { get; set; }
+        public int maxRVLength { get; set; }
+        public bool accesible { get; set; } //<---This might be wrong
+        public bool utilities { get; set; } //<---This might be wrong
     }
 }

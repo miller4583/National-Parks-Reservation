@@ -16,12 +16,13 @@ namespace Capstone
         public void run()
         {
 
-            Tools.ColorfulWriteLine(@" _   _       _   _                   _   _____           _          _____",ConsoleColor.Green); 
-            Tools.ColorfulWriteLine(@"| \ | |     | | (_)                 | | |  __ \         | |        |  __ \           ",ConsoleColor.Green);
-            Tools.ColorfulWriteLine(@"|  \| | __ _| |_ _  ___  _ __   __ _| | | |__) |_ _ _ __| | _____  | |__) |___  ___  ",ConsoleColor.Green);
-            Tools.ColorfulWriteLine(@"| . ` |/ _` | __| |/ _ \| '_ \ / _` | | |  ___/ _` | '__| |/ / __| |  _  // _ \/ __| ",ConsoleColor.Green);
-            Tools.ColorfulWriteLine(@"| |\  | (_| | |_| | (_) | | | | (_| | | | |  | (_| | |  |   <\__ \ | | \ \  __/\__ \ ",ConsoleColor.Green);
-            Tools.ColorfulWriteLine(@"|_| \_|\__,_|\__|_|\___/|_| |_|\__,_|_| |_|   \__,_|_|  |_|\_\___/ |_|  \_\___||___/ ",ConsoleColor.Green);
+            Tools.ColorfulWriteLine(@" _   _       _   _                   _   _____           _          _____", ConsoleColor.Green);
+            Tools.ColorfulWriteLine(@"| \ | |     | | (_)                 | | |  __ \         | |        |  __ \           ", ConsoleColor.Green);
+            Tools.ColorfulWriteLine(@"|  \| | __ _| |_ _  ___  _ __   __ _| | | |__) |_ _ _ __| | _____  | |__) |___  ___  ", ConsoleColor.Green);
+            Tools.ColorfulWriteLine(@"| . ` |/ _` | __| |/ _ \| '_ \ / _` | | |  ___/ _` | '__| |/ / __| |  _  // _ \/ __| ", ConsoleColor.Green);
+            Tools.ColorfulWriteLine(@"| |\  | (_| | |_| | (_) | | | | (_| | | | |  | (_| | |  |   <\__ \ | | \ \  __/\__ \ ", ConsoleColor.Green);
+            Tools.ColorfulWriteLine(@"|_| \_|\__,_|\__|_|\___/|_| |_|\__,_|_| |_|   \__,_|_|  |_|\_\___/ |_|  \_\___||___/ ", ConsoleColor.Green);
+
             while (true)
             {
                 Console.WriteLine();
@@ -29,8 +30,10 @@ namespace Capstone
                 Console.WriteLine("2 - Show all Campgrounds");
                 Console.WriteLine("3 - See if reservation is possible at your desired campground");
                 Console.WriteLine("4 - Make Reservation");
+                Console.WriteLine("5 - Advanced Search");
+                Console.WriteLine("Q - Exit Application");
 
-                string input = CLIHelper.GetString("Make your choice: ");
+                string input = CLIHelper.GetString("Make your choice:");
                 Console.WriteLine();
 
                 switch (input.ToLower())
@@ -51,6 +54,16 @@ namespace Capstone
                         MakeReservation();
                         break;
 
+                    case "5":
+                        AdvancedSearchMenu searchMenu = new AdvancedSearchMenu();
+                        searchMenu.Display();
+                        
+                        break;
+
+                    case "q":
+                        Console.WriteLine("Have a good day!");
+                        Console.ReadLine();
+                        return;
                 }
 
             }
@@ -100,7 +113,7 @@ namespace Capstone
             }
 
         }
-        
+
         private void FindAvailableCampSites()
         {
 
@@ -124,29 +137,40 @@ namespace Capstone
                 foreach (Site s in sites)
                 {
                     Console.WriteLine();
-                    Console.WriteLine($"National Site ID {s.site_id}  Campground Site Number {s.site_number} Max Occupancy {s.max_occupancy} Total Days {s.totalDays} Total Cost ${s.totalCost}");
+                    Tools.ColorfulWriteLine($"National Site ID".PadRight(20) + "Campground Site Number".PadRight(30) + "Max Occupancy".PadRight(25) + "Total Days".PadRight(20) + "Total Cost", ConsoleColor.Yellow);
+                    Console.WriteLine($"{s.site_id}".PadRight(20) + $"{s.site_number}".PadRight(30) + $"{s.max_occupancy}".PadRight(30) + $"{s.totalDays}".PadRight(20) + $"${s.totalCost}");
                 }
             }
         }
-        
+
         private void MakeReservation()
         {
             int siteID = CLIHelper.GetInteger("Please Select your Camp Site:");
-            string name = CLIHelper.GetString("Please enter reservation Name");
-            DateTime fromDate = CLIHelper.GetDateTime("Please select arrival date");
-            DateTime toDate = CLIHelper.GetDateTime("Please select depature date");
+            string name = CLIHelper.GetString("Please enter reservation Name:");
+            DateTime fromDate = CLIHelper.GetDateTime("Please select arrival date (yyyy-mm-dd):");
+            DateTime toDate = CLIHelper.GetDateTime("Please select depature date(yyyy-mm-dd):");
             DateTime createDate = DateTime.Now;
             Console.WriteLine();
             ReservationDAL dal = new ReservationDAL(connectionString);
-            
 
-            dal.MakeReservation(siteID, name, fromDate, toDate,createDate);
-            Reservation r = dal.GetReservationNumber(siteID, name, fromDate, toDate);
-            Console.WriteLine("Success, your reservation confirmation is below!");
-            Tools.ColorfulWriteLine("Confirmation ID".PadRight(20) + "Name".PadRight(35) + "Arrival Date".PadRight(10) + "Depature Date".PadRight(15) + "Creation Date", ConsoleColor.Green);
-            Console.WriteLine($"{r.reservationId})".PadRight(20) + $"{r.name}".PadRight(35) + $"{r.fromDate}".PadRight(10) + $"{r.toDate}".PadRight(15) + $"{r.createDate}");
-            
+
+            Campground c = new Campground();
+            if (c.open_from_mm >= fromDate.Month || c.open_to_mm <= toDate.Month)
+            {
+                Tools.ColorfulWriteLine("Sorry the camp is closed during that time frame. Please try again", ConsoleColor.Red);
+            }
+
+            else
+            {
+                dal.MakeReservation(siteID, name, fromDate, toDate, createDate);
+                Reservation r = dal.GetReservationNumber(siteID, name, fromDate, toDate);
+                Console.WriteLine("Success, your reservation confirmation is below!");
+                Tools.ColorfulWriteLine("Confirmation ID".PadRight(20) + "Name".PadRight(35) + "Arrival Date".PadRight(10) + "Depature Date".PadRight(15) + "Creation Date", ConsoleColor.Green);
+                Console.WriteLine($"{r.reservationId})".PadRight(20) + $"{r.name}".PadRight(35) + $"{r.fromDate}".PadRight(10) + $"{r.toDate}".PadRight(15) + $"{r.createDate}");
+            }
+
         }
+       
 
     }
 }

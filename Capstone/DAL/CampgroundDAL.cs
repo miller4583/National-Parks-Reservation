@@ -39,8 +39,7 @@ namespace Capstone.DAL
                         c.daily_fee = Convert.ToDouble(reader["daily_fee"]);
                         output.Add(c);
                     }
-
-
+                    
                 }
             }
             catch(SqlException ex)
@@ -49,9 +48,6 @@ namespace Capstone.DAL
             }
             return output;
         }
-
-
-
-
+                        
     }
 }
