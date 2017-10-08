@@ -45,7 +45,7 @@ namespace Capstone.DAL
 
         public Reservation GetReservationNumber(int siteId, string name, DateTime fromDate, DateTime toDate)
         {
-            //List<Reservation> list = new List<Reservation>();
+           
             Reservation r = new Reservation();
             try
             {
@@ -67,7 +67,7 @@ namespace Capstone.DAL
                         r.fromDate = Convert.ToDateTime(readerTwo["from_date"]);
                         r.toDate = Convert.ToDateTime(readerTwo["to_date"]);
                         r.reservationId = Convert.ToInt32(readerTwo["reservation_id"]);
-                        //list.Add(r);
+                       
                     }
 
                 }

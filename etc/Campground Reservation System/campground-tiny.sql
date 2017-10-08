@@ -1,7 +1,7 @@
-DROP TABLE reservation;
-DROP TABLE site;
-DROP TABLE campground;
-DROP TABLE park;
+--DROP TABLE reservation;
+--DROP TABLE site;
+--DROP TABLE campground;
+--DROP TABLE park;
 
 CREATE TABLE park (
   park_id integer identity NOT NULL,
@@ -209,3 +209,27 @@ ALTER TABLE campground ADD FOREIGN KEY (park_id) REFERENCES park(park_id);
 ALTER TABLE site ADD FOREIGN KEY (campground_id) REFERENCES campground(campground_id);
 ALTER TABLE reservation ADD FOREIGN KEY (site_id) REFERENCES site(site_id);
 
+Select * From site
+
+
+select top 5 site.max_occupancy, site.site_id, site.site_number 
+from site where site.campground_id = 4;
+select * from reservation
+select*from site;
+select * from park
+select * from campground
+
+@"select * from site join reservation on reservation.site_id = site.site_id where reservation.from_date =  @startDate and reservation.to_date = @endDate and site.campground_id = @campground_id;";
+
+Select * from site Where site_number = site_number and max_occupancy = max_occupancy and accessible = accessible and max_rv_length = max_rv_length and utilities = utilities
+Select max_occupancy
+from site 
+Where max_occupancy = max_occupancy
+
+ private string SQL_MaxOccupancy = @"Select site.max_occupancy from site Where site.site_id = @site_id";
+
+Select site.accessible from site where site.site_id = site_id
+
+Select site.site_id ,site.max_rv_length from site where site.max_rv_length = site.max_rv_length
+
+select site.site_id, site.utilities from site where site.utilities =1

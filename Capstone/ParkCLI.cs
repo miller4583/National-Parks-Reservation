@@ -32,7 +32,7 @@ namespace Capstone
                 Console.WriteLine("4 - Make Reservation");
                 Console.WriteLine("5 - Advanced Search");
                 Console.WriteLine("Q - Exit Application");
-
+                Console.WriteLine();
                 string input = CLIHelper.GetString("Make your choice:");
                 Console.WriteLine();
 
@@ -152,8 +152,7 @@ namespace Capstone
             DateTime createDate = DateTime.Now;
             Console.WriteLine();
             ReservationDAL dal = new ReservationDAL(connectionString);
-
-
+            
             Campground c = new Campground();
             if (c.open_from_mm >= fromDate.Month || c.open_to_mm <= toDate.Month)
             {
@@ -171,6 +170,5 @@ namespace Capstone
 
         }
        
-
     }
 }
