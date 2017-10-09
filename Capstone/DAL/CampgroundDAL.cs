@@ -23,7 +23,7 @@ namespace Capstone.DAL
 
             try
             {
-                using(SqlConnection conn = new SqlConnection(connecetionString))
+                using (SqlConnection conn = new SqlConnection(connecetionString))
                 {
                     conn.Open();
                     SqlCommand cmd = new SqlCommand("Select * from campground where park_id = @park_id", conn);
@@ -39,15 +39,13 @@ namespace Capstone.DAL
                         c.daily_fee = Convert.ToDouble(reader["daily_fee"]);
                         output.Add(c);
                     }
-                    
                 }
             }
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
                 throw;
             }
             return output;
         }
-                        
     }
 }

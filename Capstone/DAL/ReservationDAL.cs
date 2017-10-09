@@ -37,7 +37,7 @@ namespace Capstone.DAL
                     return (rowsaffected > 0);
                 }
             }
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
                 throw;
             }
@@ -45,11 +45,11 @@ namespace Capstone.DAL
 
         public Reservation GetReservationNumber(int siteId, string name, DateTime fromDate, DateTime toDate)
         {
-           
+
             Reservation r = new Reservation();
             try
             {
-                using(SqlConnection conn= new SqlConnection(connectionString))
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
                     SqlCommand cmd = new SqlCommand(SQL_Get_Res_Num, conn);
@@ -60,19 +60,16 @@ namespace Capstone.DAL
                     SqlDataReader readerTwo = cmd.ExecuteReader();
                     while (readerTwo.Read())
                     {
-                        
                         r.createDate = Convert.ToDateTime(readerTwo["create_date"]);
                         r.siteId = Convert.ToInt32(readerTwo["site_id"]);
                         r.name = Convert.ToString(readerTwo["name"]);
                         r.fromDate = Convert.ToDateTime(readerTwo["from_date"]);
                         r.toDate = Convert.ToDateTime(readerTwo["to_date"]);
                         r.reservationId = Convert.ToInt32(readerTwo["reservation_id"]);
-                       
                     }
-
                 }
             }
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
                 throw;
             }

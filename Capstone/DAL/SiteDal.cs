@@ -39,21 +39,16 @@ namespace Capstone.DAL
                     int rowsAffected = cmd.ExecuteNonQuery();
 
                     return (rowsAffected < 7);
-
                 }
-
             }
             catch (SqlException ex)
             {
                 throw;
             }
-
         }
         public List<Site> GetTop5(int campground_id, DateTime startDate, DateTime endDate)
         {
             List<Site> output = new List<Site>();
-
-
             try
             {
                 using (SqlConnection con = new SqlConnection(connectionString))
@@ -75,9 +70,7 @@ namespace Capstone.DAL
                         s.totalDays = totalDays;
                         s.totalCost = Convert.ToDecimal(totalDays * Convert.ToInt32(reader["daily_fee"]));
                         output.Add(s);
-
                     }
-
                 }
             }
             catch (SqlException ex)
@@ -90,7 +83,6 @@ namespace Capstone.DAL
         public List<Site> ListOfMaxOccupancy(int siteID)
         {
             List<Site> maxOc = new List<Site>();
-
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -133,7 +125,7 @@ namespace Capstone.DAL
                     {
                         Site s = new Site();
                         s.accesible = Convert.ToBoolean(reader["accessible"]);
-                        
+
                         isAccessible.Add(s);
                     }
                 }
@@ -145,11 +137,9 @@ namespace Capstone.DAL
             return isAccessible;
         }
 
-
         public List<Site> ListOfMaxRVLength(int siteID)
         {
             List<Site> rvLegth = new List<Site>();
-
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -162,7 +152,6 @@ namespace Capstone.DAL
                     while (reader.Read())
                     {
                         Site rv = new Site();
-
                         rv.maxRVLength = Convert.ToInt32(reader["max_rv_length"]);
                         rvLegth.Add(rv);
                     }
@@ -175,10 +164,9 @@ namespace Capstone.DAL
             return rvLegth;
         }
 
-        public List<Site> ListAreThereUtilities (int siteID)
+        public List<Site> ListAreThereUtilities(int siteID)
         {
             List<Site> areUtilites = new List<Site>();
-
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -192,7 +180,6 @@ namespace Capstone.DAL
                     {
                         Site u = new Site();
                         u.accesible = Convert.ToBoolean(reader["utilities"]);
-                        
                         areUtilites.Add(u);
                     }
                 }

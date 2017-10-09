@@ -12,9 +12,8 @@ namespace Capstone.DAL
 {
     public class ParkDAL
     {
-
         private string connectionString;
-        
+
         public ParkDAL(string connectionString)
         {
             this.connectionString = connectionString;
@@ -46,9 +45,9 @@ namespace Capstone.DAL
 
                         output.Add(p);
                     }
-                } 
+                }
             }
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
                 throw;
             }
