@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Capstone.DAL;
 using Capstone.Models;
 using System.Globalization;
+using System.Data.SqlClient;
 
 namespace Capstone
 {
@@ -51,33 +52,29 @@ namespace Capstone
                         break;
 
                     case "4":
-                        MakeReservation();
+                        CheckReservation();
                         break;
 
                     case "5":
                         AdvancedSearchMenu searchMenu = new AdvancedSearchMenu();
                         searchMenu.Display();
-                        
+
                         break;
 
-                    case "q":
-                        Console.WriteLine("Have a good day!");
-                        Console.ReadLine();
-                        return;
                 }
-
+                if (input.ToLower() == "q")
+                {
+                    Console.WriteLine("Have a great day!");
+                    break;
+                }
             }
-
         }
 
         private void ShowAllParks()
         {
             Console.WriteLine("SHOWING ALL PARKS");
-
             ParkDAL dal = new ParkDAL(connectionString);
-
             List<Parks> parksList = dal.GetListOfParks();
-
             foreach (Parks p in parksList)
             {
                 Tools.ColorfulWriteLine("Park ID".PadRight(10) + "Park Name".PadRight(20) + "Location".PadRight(10) + "Date Established".PadRight(30) + "Area".PadRight(10) + "Annual Vistors".PadRight(10), ConsoleColor.Green);
@@ -87,7 +84,6 @@ namespace Capstone
                 Console.WriteLine(p.Description);
                 Console.WriteLine();
             }
-
         }
 
         private void ShowAllCampgrounds()
@@ -143,32 +139,47 @@ namespace Capstone
             }
         }
 
-        private void MakeReservation()
+        private void CheckReservation()
         {
-            int siteID = CLIHelper.GetInteger("Please Select your Camp Site:");
-            string name = CLIHelper.GetString("Please enter reservation Name:");
-            DateTime fromDate = CLIHelper.GetDateTime("Please select arrival date (yyyy-mm-dd):");
-            DateTime toDate = CLIHelper.GetDateTime("Please select depature date(yyyy-mm-dd):");
-            DateTime createDate = DateTime.Now;
-            Console.WriteLine();
-            ReservationDAL dal = new ReservationDAL(connectionString);
-            
-            Campground c = new Campground();
-            if (c.open_from_mm >= fromDate.Month || c.open_to_mm <= toDate.Month)
+            try
             {
-                Tools.ColorfulWriteLine("Sorry the camp is closed during that time frame. Please try again", ConsoleColor.Red);
-            }
+                Campground c = new Campground();
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("Select * from campground", conn);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        c.open_from_mm = Convert.ToInt32(reader["open_from_mm"]);
+                        c.open_to_mm = Convert.ToInt32(reader["open_to_mm"]);
 
-            else
+                    }
+                }
+                int siteID = CLIHelper.GetInteger("Please Select your Camp Site:");
+                string name = CLIHelper.GetString("Please enter reservation Name:");
+                DateTime fromDate = CLIHelper.GetDateTime("Please select arrival date (yyyy-mm-dd):");
+                DateTime toDate = CLIHelper.GetDateTime("Please select depature date(yyyy-mm-dd):");
+                DateTime createDate = DateTime.Now;
+                Console.WriteLine();
+                ReservationDAL dal = new ReservationDAL(connectionString);
+                if (c.open_from_mm > fromDate.Month || c.open_to_mm < toDate.Month)
+                {
+                    Tools.ColorfulWriteLine("Sorry the camp is closed during that time frame. Please try again", ConsoleColor.Red);
+                }
+                else
+                {
+                    dal.MakeReservation(siteID, name, fromDate, toDate, createDate);
+                    Reservation r = dal.GetReservationNumber(siteID, name, fromDate, toDate);
+                    Console.WriteLine("Success, your reservation confirmation is below!");
+                    Tools.ColorfulWriteLine("Confirmation ID".PadRight(20) + "Name".PadRight(35) + "Arrival Date".PadRight(10) + "Depature Date".PadRight(15) + "Creation Date", ConsoleColor.Green);
+                    Console.WriteLine($"{r.reservationId})".PadRight(20) + $"{r.name}".PadRight(35) + $"{r.fromDate}".PadRight(10) + $"{r.toDate}".PadRight(15) + $"{r.createDate}");
+                }
+            }
+            catch (SqlException ex)
             {
-                dal.MakeReservation(siteID, name, fromDate, toDate, createDate);
-                Reservation r = dal.GetReservationNumber(siteID, name, fromDate, toDate);
-                Console.WriteLine("Success, your reservation confirmation is below!");
-                Tools.ColorfulWriteLine("Confirmation ID".PadRight(20) + "Name".PadRight(35) + "Arrival Date".PadRight(10) + "Depature Date".PadRight(15) + "Creation Date", ConsoleColor.Green);
-                Console.WriteLine($"{r.reservationId})".PadRight(20) + $"{r.name}".PadRight(35) + $"{r.fromDate}".PadRight(10) + $"{r.toDate}".PadRight(15) + $"{r.createDate}");
+                throw;
             }
-
         }
-       
     }
 }
