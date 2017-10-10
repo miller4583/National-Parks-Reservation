@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Capstone.DAL;
 using Capstone.Models;
+using System.Configuration;
 
 namespace Capstone
 {
     public class AdvancedSearchMenu
     {
-        private string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=Park Capstone;User ID=te_student;Password=sqlserver1";
+        private string connectionString = ConfigurationManager.ConnectionStrings["CapstoneDatabase"].ConnectionString;
 
         public void Display()
         {
@@ -27,15 +28,27 @@ namespace Capstone
                 string input = CLIHelper.GetString("Make your choice:");
                 Console.WriteLine();
 
+               
+                if (input == "5")
+                {
+                    return;
+                }
+
+                int siteId = CLIHelper.GetInteger("Please Select Site ID ");
+                SiteDal siteDal = new SiteDal(connectionString);
+
+                Site s = siteDal.GetSite(siteId);
+
+
                 switch (input.ToLower())
                 {
-                    case "1":
-                        int site_id = CLIHelper.GetInteger("Please Select Site ID ");
-                        SiteDal maxGet = new SiteDal(connectionString);
-                        ShowMaxOccupancy(maxGet.ListOfMaxOccupancy(site_id), site_id);
+                    case "1":                                                
+                        ShowMaxOccupancy(s);
                         break;
 
                     case "2":
+
+
                         int site_idONE = CLIHelper.GetInteger("Please Select Site ID ");
                         SiteDal accessible = new SiteDal(connectionString);
                         IsItAccessible(accessible.ListIsSiteAccessible(site_idONE), site_idONE);
@@ -52,27 +65,28 @@ namespace Capstone
                         SiteDal utility = new SiteDal(connectionString);
                         AreThereUtilities(utility.ListAreThereUtilities(utilityID), utilityID);
                         break;
-
-                    case "5":
-                        ParkCLI mainmenu = new ParkCLI();
-                        mainmenu.run();
-                        break;
+                    
                 }
 
             }
         }
 
-        private void ShowMaxOccupancy(List<Site> maxes, int site)
+        private void ShowMaxOccupancy(Site site)
         {
-            SiteDal dal = new SiteDal(connectionString);
-
-            if (maxes.Count > 0)
+            if (site != null)
             {
-                foreach (Site occupancy in maxes)
-                {
-                    Tools.ColorfulWriteLine($"The max occupancy of site {site} is {occupancy.max_occupancy}", ConsoleColor.Green);
-                }
+                Tools.ColorfulWriteLine($"The max occupancy of site {site.site_id} is {site.max_occupancy}", ConsoleColor.Green);
             }
+
+            //SiteDal dal = new SiteDal(connectionString);
+
+            //if (maxes.Count > 0)
+            //{
+            //    foreach (Site occupancy in maxes)
+            //    {
+            //        Tools.ColorfulWriteLine($"The max occupancy of site {site} is {occupancy.max_occupancy}", ConsoleColor.Green);
+            //    }
+            //}
 
         }
 

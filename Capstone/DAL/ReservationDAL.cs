@@ -45,8 +45,7 @@ namespace Capstone.DAL
 
         public Reservation GetReservationNumber(int siteId, string name, DateTime fromDate, DateTime toDate)
         {
-
-            Reservation r = new Reservation();
+            Reservation r = null;
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -57,15 +56,16 @@ namespace Capstone.DAL
                     cmd.Parameters.AddWithValue("@name", name);
                     cmd.Parameters.AddWithValue("@fromDate", fromDate);
                     cmd.Parameters.AddWithValue("@toDate", toDate);
-                    SqlDataReader readerTwo = cmd.ExecuteReader();
-                    while (readerTwo.Read())
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
                     {
-                        r.createDate = Convert.ToDateTime(readerTwo["create_date"]);
-                        r.siteId = Convert.ToInt32(readerTwo["site_id"]);
-                        r.name = Convert.ToString(readerTwo["name"]);
-                        r.fromDate = Convert.ToDateTime(readerTwo["from_date"]);
-                        r.toDate = Convert.ToDateTime(readerTwo["to_date"]);
-                        r.reservationId = Convert.ToInt32(readerTwo["reservation_id"]);
+                        r = new Reservation();
+                        r.createDate = Convert.ToDateTime(reader["create_date"]);
+                        r.siteId = Convert.ToInt32(reader["site_id"]);
+                        r.name = Convert.ToString(reader["name"]);
+                        r.fromDate = Convert.ToDateTime(reader["from_date"]);
+                        r.toDate = Convert.ToDateTime(reader["to_date"]);
+                        r.reservationId = Convert.ToInt32(reader["reservation_id"]);
                     }
                 }
             }

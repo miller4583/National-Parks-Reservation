@@ -17,7 +17,33 @@ namespace Capstone.DAL
             this.connecetionString = connectionString;
         }
 
-        public List<Campground> GetCampGroundsList(int park_id)
+        public Campground GetCampgroundById(int campgroundId)
+        {
+            Campground c = null;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connecetionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("Select * from campground where campground_id = @campground_id", conn);
+                    cmd.Parameters.AddWithValue("@campground_id", campgroundId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        c = GetCampgroundFromReader(reader);
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw;
+            }
+
+            return c;
+        }
+        
+        public List<Campground> GetCampGroundsList(int parkId)
         {
             List<Campground> output = new List<Campground>();
 
@@ -27,17 +53,12 @@ namespace Capstone.DAL
                 {
                     conn.Open();
                     SqlCommand cmd = new SqlCommand("Select * from campground where park_id = @park_id", conn);
-                    cmd.Parameters.AddWithValue("@park_id", park_id);
+                    cmd.Parameters.AddWithValue("@park_id", parkId);
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        Campground c = new Campground();
-                        c.campground_id = Convert.ToInt32(reader["campground_id"]);
-                        c.name = Convert.ToString(reader["name"]);
-                        c.open_from_mm = Convert.ToInt32(reader["open_from_mm"]);
-                        c.open_to_mm = Convert.ToInt32(reader["open_to_mm"]);
-                        c.daily_fee = Convert.ToDouble(reader["daily_fee"]);
-                        output.Add(c);
+                        Campground c = GetCampgroundFromReader(reader);
+                        output.Add(c);                        
                     }
                 }
             }
@@ -46,6 +67,17 @@ namespace Capstone.DAL
                 throw;
             }
             return output;
+        }
+
+        private Campground GetCampgroundFromReader(SqlDataReader reader)
+        {
+            Campground c = new Campground();
+            c.CampgroundId = Convert.ToInt32(reader["campground_id"]);
+            c.Name = Convert.ToString(reader["name"]);
+            c.OpenFromMM = Convert.ToInt32(reader["open_from_mm"]);
+            c.OpenToMM = Convert.ToInt32(reader["open_to_mm"]);
+            c.DailyFee = Convert.ToDouble(reader["daily_fee"]);
+            return c;
         }
     }
 }

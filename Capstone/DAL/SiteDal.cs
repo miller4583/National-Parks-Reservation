@@ -18,6 +18,7 @@ namespace Capstone.DAL
         private string SQL_Accessible = @"Select site.accessible from site where site.site_id = @site_id and site.accessible = 1";
         private string SQL_MaxRV = @"Select site.max_rv_length from site where site.site_id = @site_id";
         private string SQL_Utilites = @"Select site.utilities from site where site.site_id = @site_id and site.utilities = 1";
+        private string SQL_GetSiteById = @"SELECT * FROM site WHERE site.site_id = @site_id";
 
         public SiteDal(string connectionString)
         {
@@ -65,6 +66,7 @@ namespace Capstone.DAL
                     {
                         Site s = new Site();
                         s.site_id = Convert.ToInt32(reader["site_id"]);
+                        s.campground_id = Convert.ToInt32(reader["campground_id"]);
                         s.site_number = Convert.ToInt32(reader["site_number"]);
                         s.max_occupancy = Convert.ToInt32(reader["max_occupancy"]);
                         s.totalDays = totalDays;
@@ -79,6 +81,41 @@ namespace Capstone.DAL
             }
             return output;
         }
+
+        public Site GetSite(int siteId)
+        {
+            Site s = null;
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+                    SqlCommand cmd = new SqlCommand(SQL_GetSiteById, con);
+                    cmd.Parameters.AddWithValue("@site_id", siteId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    
+                    if (reader.Read())
+                    {
+                        s = new Site();
+                        s.site_id = Convert.ToInt32(reader["site_id"]);
+                        s.campground_id = Convert.ToInt32(reader["campground_id"]);
+                        s.site_number = Convert.ToInt32(reader["site_number"]);
+                        s.max_occupancy = Convert.ToInt32(reader["max_occupancy"]);
+                        s.maxRVLength = Convert.ToInt32(reader["max_rv_length"]);
+                        s.utilities = Convert.ToBoolean(reader["utilities"]);
+                        s.accesible = Convert.ToBoolean(reader["accessible"]);
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw;
+            }
+
+            return s;
+        }
+
 
         public List<Site> ListOfMaxOccupancy(int siteID)
         {

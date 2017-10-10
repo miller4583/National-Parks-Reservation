@@ -7,12 +7,13 @@ using Capstone.DAL;
 using Capstone.Models;
 using System.Globalization;
 using System.Data.SqlClient;
+using System.Configuration;
 
 namespace Capstone
 {
     public class ParkCLI
     {
-        private string connectionString = @"Data Source=.\SQLEXPRESS;Initial Catalog=Park Capstone;User ID=te_student;Password=sqlserver1";
+        private string connectionString = ConfigurationManager.ConnectionStrings["CapstoneDatabase"].ConnectionString;
 
         public void run()
         {
@@ -58,14 +59,12 @@ namespace Capstone
                     case "5":
                         AdvancedSearchMenu searchMenu = new AdvancedSearchMenu();
                         searchMenu.Display();
-
                         break;
 
-                }
-                if (input.ToLower() == "q")
-                {
-                    Console.WriteLine("Have a great day!");
-                    break;
+                    case "q":
+                        Console.WriteLine("Have a great day!");
+                        return;
+
                 }
             }
         }
@@ -99,12 +98,12 @@ namespace Capstone
             {
                 System.Globalization.DateTimeFormatInfo gmn = new
                 System.Globalization.DateTimeFormatInfo();
-                string strMonthName = gmn.GetMonthName(c.open_from_mm).ToString();
-                string endMonthName = gmn.GetMonthName(c.open_to_mm).ToString();
+                string strMonthName = gmn.GetMonthName(c.OpenFromMM).ToString();
+                string endMonthName = gmn.GetMonthName(c.OpenToMM).ToString();
 
                 Console.WriteLine();
                 Tools.ColorfulWriteLine("Campground ID".PadRight(20) + "Name".PadRight(35) + "Opens".PadRight(10) + "Closes".PadRight(15) + "Daily Fee", ConsoleColor.Green);
-                Console.WriteLine($"{c.campground_id})".PadRight(20) + $"{c.name}".PadRight(35) + $"{strMonthName}".PadRight(10) + $"{endMonthName}".PadRight(15) + $"${c.daily_fee}");
+                Console.WriteLine($"{c.CampgroundId})".PadRight(20) + $"{c.Name}".PadRight(35) + $"{strMonthName}".PadRight(10) + $"{endMonthName}".PadRight(15) + $"${c.DailyFee}");
                 Console.WriteLine();
             }
 
@@ -141,45 +140,41 @@ namespace Capstone
 
         private void CheckReservation()
         {
-            try
-            {
-                Campground c = new Campground();
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand("Select * from campground", conn);
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        c.open_from_mm = Convert.ToInt32(reader["open_from_mm"]);
-                        c.open_to_mm = Convert.ToInt32(reader["open_to_mm"]);
+            int siteID = CLIHelper.GetInteger("Please Select your Camp Site:");
+            SiteDal siteDal = new SiteDal(connectionString);
+            Site site = siteDal.GetSite(siteID);
 
-                    }
-                }
-                int siteID = CLIHelper.GetInteger("Please Select your Camp Site:");
-                string name = CLIHelper.GetString("Please enter reservation Name:");
-                DateTime fromDate = CLIHelper.GetDateTime("Please select arrival date (yyyy-mm-dd):");
-                DateTime toDate = CLIHelper.GetDateTime("Please select depature date(yyyy-mm-dd):");
-                DateTime createDate = DateTime.Now;
-                Console.WriteLine();
-                ReservationDAL dal = new ReservationDAL(connectionString);
-                if (c.open_from_mm > fromDate.Month || c.open_to_mm < toDate.Month)
-                {
-                    Tools.ColorfulWriteLine("Sorry the camp is closed during that time frame. Please try again", ConsoleColor.Red);
-                }
-                else
-                {
-                    dal.MakeReservation(siteID, name, fromDate, toDate, createDate);
-                    Reservation r = dal.GetReservationNumber(siteID, name, fromDate, toDate);
-                    Console.WriteLine("Success, your reservation confirmation is below!");
-                    Tools.ColorfulWriteLine("Confirmation ID".PadRight(20) + "Name".PadRight(35) + "Arrival Date".PadRight(10) + "Depature Date".PadRight(15) + "Creation Date", ConsoleColor.Green);
-                    Console.WriteLine($"{r.reservationId})".PadRight(20) + $"{r.name}".PadRight(35) + $"{r.fromDate}".PadRight(10) + $"{r.toDate}".PadRight(15) + $"{r.createDate}");
-                }
-            }
-            catch (SqlException ex)
+            if (site == null)
             {
-                throw;
+                Console.WriteLine("That site does not exist.");
+                return;
             }
+
+            CampgroundDAL campDal = new CampgroundDAL(connectionString);
+            Campground c = campDal.GetCampgroundById(site.campground_id);
+
+            string name = CLIHelper.GetString("Please enter reservation Name:");
+            DateTime fromDate = CLIHelper.GetDateTime("Please select arrival date (yyyy-mm-dd):");
+            DateTime toDate = CLIHelper.GetDateTime("Please select depature date(yyyy-mm-dd):");
+            DateTime createDate = DateTime.Now;
+
+            Console.WriteLine();
+            
+            if (c.OpenFromMM > fromDate.Month || c.OpenToMM < toDate.Month)
+            {
+                Tools.ColorfulWriteLine("Sorry the camp is closed during that time frame. Please try again", ConsoleColor.Red);
+            }
+            else
+            {
+                ReservationDAL dal = new ReservationDAL(connectionString);
+                dal.MakeReservation(siteID, name, fromDate, toDate, createDate);
+                Reservation r = dal.GetReservationNumber(siteID, name, fromDate, toDate);
+
+                Console.WriteLine("Success, your reservation confirmation is below!");
+                Tools.ColorfulWriteLine("Confirmation ID".PadRight(20) + "Name".PadRight(35) + "Arrival Date".PadRight(10) + "Depature Date".PadRight(15) + "Creation Date", ConsoleColor.Green);
+                Console.WriteLine($"{r.reservationId})".PadRight(20) + $"{r.name}".PadRight(35) + $"{r.fromDate}".PadRight(10) + $"{r.toDate}".PadRight(15) + $"{r.createDate}");
+            }
+
         }
     }
 }
